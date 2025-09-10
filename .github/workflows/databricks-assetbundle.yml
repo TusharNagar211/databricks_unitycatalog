@@ -1,0 +1,54 @@
+name: Databricks Asset Bundle Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - release
+      - main
+  pull_request:
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install black flake8
+      - run: black --check dbx_bundle
+      - run: flake8 dbx_bundle
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    defaults:
+      run:
+        working-directory: dbx_bundle
+
+    # Map branch -> GitHub Environment
+    environment: ${{ github.ref == 'refs/heads/main' && 'dev' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Deploy Asset Bundle
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+            databricks bundle deploy -t dev
+          elif [[ "${GITHUB_REF##*/}" == "release" ]]; then
+            databricks bundle deploy -t qa
+          elif [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            databricks bundle deploy -t prod
+          fi

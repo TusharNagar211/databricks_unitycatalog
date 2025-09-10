@@ -18,6 +18,7 @@ targets:
     default: true
     workspace:
       host: https://adb-4091704180100433.13.azuredatabricks.net
+      root_path: /Users/tushar@hemaliriaangmail.onmicrosoft.com/dev/notebook_bundle      
 
   prod:
     mode: production
