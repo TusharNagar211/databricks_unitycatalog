@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - develop
-      - 'release/**'
+      - release
       - main
   pull_request:
 
 jobs:
   lint-and-format:
-    name: Code Analysis
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -26,15 +26,23 @@ jobs:
           pip install black flake8
 
       - name: Run Black (format check)
-        run: black --check dbx_bundle\src
+        run: black --check dbx_bundle
 
       - name: Run Flake8 (lint check)
-        run: flake8 src
+        run: flake8 dbx_bundle
 
   deploy:
     name: Deploy to Databricks
     runs-on: ubuntu-latest
     needs: lint-and-format
+
+    # Map branch -> GitHub environment (dev, qa, prod)
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -56,10 +64,10 @@ jobs:
 
       - name: Deploy Notebooks to Environment
         run: |
-          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
-            databricks workspace import_dir -o src /Repos/dev/src
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            databricks workspace import_dir -o dbx_bundle /Repos/dev/dbx_bundle
           elif [[ "${GITHUB_REF##*/}" == "release" ]]; then
-            databricks workspace import_dir -o src /Repos/qa/src
-          elif [[ "${GITHUB_REF##*/}" == "master" ]]; then
-            databricks workspace import_dir -o src /Repos/prod/src
+            databricks workspace import_dir -o dbx_bundle /Repos/qa/dbx_bundle
+          elif [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            databricks workspace import_dir -o dbx_bundle /Repos/prod/dbx_bundle
           fi
