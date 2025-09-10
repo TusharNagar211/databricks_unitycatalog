@@ -1,4 +1,4 @@
-name: Databricks Asset Bundle Deploy
+name: Databricks Asset Bundle CI/CD
 
 on:
   push:
@@ -12,13 +12,22 @@ jobs:
   lint-and-format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install black flake8
-      - run: black --check dbx_bundle
-      - run: flake8 dbx_bundle
+
+      - name: Install linters
+        run: pip install black flake8
+
+      - name: Run Black (format check)
+        run: black --check dbx_bundle
+
+      - name: Run Flake8 (lint check)
+        run: flake8 dbx_bundle
 
   deploy:
     runs-on: ubuntu-latest
@@ -27,7 +36,7 @@ jobs:
       run:
         working-directory: dbx_bundle
 
-    # Map branch -> GitHub Environment
+    # Map GitHub branch -> GitHub Environment
     environment: ${{ github.ref == 'refs/heads/main' && 'dev' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
 
     env:
@@ -35,15 +44,16 @@ jobs:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - name: Install Databricks CLI
+      - name: Install Databricks CLI (new)
         run: |
-            curl -fsSL https://raw.githubusercontent.com/databricks/cli/main/install.sh | sh
-            echo "$HOME/.databricks/bin" >> $GITHUB_PATH        
+          curl -fsSL https://raw.githubusercontent.com/databricks/cli/main/install.sh | sh
+          echo "$HOME/.databricks/bin" >> $GITHUB_PATH
+
+      - name: Check Databricks CLI
+        run: databricks version
 
       - name: Deploy Asset Bundle
         run: |
