@@ -1,0 +1,65 @@
+name: Databricks CI/CD
+
+on:
+  push:
+    branches:
+      - develop
+      - 'release/**'
+      - master
+  pull_request:
+
+jobs:
+  lint-and-format:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install black flake8
+
+      - name: Run Black (format check)
+        run: black --check src
+
+      - name: Run Flake8 (lint check)
+        run: flake8 src
+
+  deploy:
+    name: Deploy to Databricks
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Configure Databricks CLI
+        run: |
+          databricks configure --token <<EOF
+          ${{ secrets.DATABRICKS_HOST }}
+          ${{ secrets.DATABRICKS_TOKEN }}
+          EOF
+
+      - name: Deploy Notebooks to Environment
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+            databricks workspace import_dir -o src /Repos/dev/src
+          elif [[ "${GITHUB_REF##*/}" == "release" ]]; then
+            databricks workspace import_dir -o src /Repos/qa/src
+          elif [[ "${GITHUB_REF##*/}" == "master" ]]; then
+            databricks workspace import_dir -o src /Repos/prod/src
+          fi
