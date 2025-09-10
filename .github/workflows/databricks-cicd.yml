@@ -37,7 +37,7 @@ jobs:
     needs: lint-and-format
 
     # Map branch -> GitHub environment (dev, qa, prod)
-    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
+    environment: ${{ github.ref == 'refs/heads/main' && 'dev' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
 
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
