@@ -41,7 +41,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Databricks CLI
-        run: pip install databricks-cli
+        run: curl -fsSL https://raw.githubusercontent.com/databricks/cli/main/install.sh | sh
 
       - name: Deploy Asset Bundle
         run: |
