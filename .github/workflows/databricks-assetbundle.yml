@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy Asset Bundle
         run: |
-          if [[ "${GITHUB_REF##*/}" == "develop" ]]; then
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             databricks bundle deploy -t dev
           elif [[ "${GITHUB_REF##*/}" == "release" ]]; then
             databricks bundle deploy -t qa
