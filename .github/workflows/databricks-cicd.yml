@@ -57,7 +57,7 @@ jobs:
       - name: Deploy Notebooks to Environment
         run: |
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            databricks workspace import-dir dbx_bundle "/Users/tushar@hemaliriaangmail.onmicrosoft.com/dev/dbx_bundle" --overwrite
+            databricks workspace import-dir src "/Users/tushar@hemaliriaangmail.onmicrosoft.com/dev/dbx_bundle" --overwrite
           elif [[ "${GITHUB_REF##*/}" == "release" ]]; then
-            databricks workspace import-dir dbx_bundle /Repos/qa/dbx_bundle
+            databricks workspace import-dir src /Repos/qa/dbx_bundle
           fi
