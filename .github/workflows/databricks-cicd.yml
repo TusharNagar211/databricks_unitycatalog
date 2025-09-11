@@ -9,32 +9,27 @@ on:
   pull_request:
 
 jobs:
-  lint-and-format:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+  lint:
+    uses: ./.github/templates/lint.yml
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+  black:
+    uses: ./.github/templates/black.yml
 
-      - name: Install dependencies
-        run: |
-          pip install black flake8
+  unittest:
+    uses: ./.github/templates/unittest.yml
 
-      - name: Run Black (format check)
-        run: black --check dbx_bundle
+  coverage:
+    uses: ./.github/templates/coverage.yml
 
-      - name: Run Flake8 (lint check)
-        run: flake8 dbx_bundle
+  gitleaks:
+    uses: ./.github/templates/gitleaks.yml
 
   deploy:
-    name: Deploy to Databricks
     runs-on: ubuntu-latest
-    needs: lint-and-format
+    needs: [lint, black, unittest, coverage, gitleaks]
+    defaults:
+      run:
+        working-directory: dbx_bundle
 
     # Map branch -> GitHub environment (dev, qa, prod)
     environment: ${{ github.ref == 'refs/heads/main' && 'dev' || github.ref == 'refs/heads/release' && 'qa' || 'dev' }}
