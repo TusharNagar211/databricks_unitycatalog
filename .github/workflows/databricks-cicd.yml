@@ -12,7 +12,7 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
   black:
-    uses: ./.github/templates/black.yml
+    uses: ./.github/templates/black.yml@main
   coverage:
     uses: ./.github/workflows/code-coverage.yml
   gitleaks:
