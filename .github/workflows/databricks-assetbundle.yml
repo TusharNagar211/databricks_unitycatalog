@@ -10,15 +10,16 @@ on:
 
 jobs:
   lint:
-    uses: ./.github/workflows/lint.yml@main
+    uses: ./.github/workflows/lint.yml
   black:
-    uses: ./.github/workflows/black.yml@main
+    uses: ./.github/workflows/black.yml
   unittest:
-    uses: ./.github/workflows/unittest.yml@main
+    uses: ./.github/workflows/unittest.yml
   coverage:
-    uses: ./.github/workflows/coverage.yml@main
+    uses: ./.github/workflows/coverage.yml
   gitleaks:
-    uses: ./.github/workflows/gitleaks.yml@main
+    uses: ./.github/workflows/gitleaks.yml
+    
 
 
   deploy:
