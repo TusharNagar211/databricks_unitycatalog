@@ -12,9 +12,7 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
   black:
-    uses: ./.github/workflows/black.yml
-  unittest:
-    uses: ./.github/workflows/unittest.yml
+    uses: ./.github/templates/black.yml
   coverage:
     uses: ./.github/workflows/code-coverage.yml
   gitleaks:
@@ -23,7 +21,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [lint, black, unittest, coverage, gitleaks]
+    needs: [lint, black, coverage, gitleaks]
     defaults:
       run:
         working-directory: dbx_bundle

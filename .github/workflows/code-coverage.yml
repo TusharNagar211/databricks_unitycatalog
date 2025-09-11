@@ -1,4 +1,4 @@
-name: Coverage
+name: Coverage + Notebook Tests
 
 on:
   workflow_call:
@@ -17,12 +17,38 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pytest-notebook nbclient jupyter
 
-      - name: Run tests with coverage (skip if none)
+      - name: Run tests with coverage (Python + Notebooks)
         run: |
+          mkdir -p coverage-results
+          
+          # Run pytest on tests/ folder if exists
           if [ -d tests ]; then
-            pytest --cov=dbx_bundle --cov-report=xml
+            pytest tests --cov=dbx_bundle --cov-report=xml:coverage-results/coverage.xml --cov-report=html:coverage-results/html --junitxml=coverage-results/results.xml
           else
-            echo "⚠️ No tests found, skipping coverage."
+            echo "⚠️ No tests directory found, skipping unit tests." > coverage-results/results.txt
           fi
+          
+          # Run pytest-notebook on notebooks if present
+          if compgen -G "notebooks/*.ipynb" > /dev/null; then
+            pytest --nbval notebooks/*.ipynb --junitxml=coverage-results/notebooks.xml
+          else
+            echo "⚠️ No notebooks found, skipping notebook tests." >> coverage-results/results.txt
+          fi
+
+      - name: Convert notebooks for coverage (optional)
+        run: |
+          mkdir -p converted
+          if compgen -G "notebooks/*.ipynb" > /dev/null; then
+            for nb in notebooks/*.ipynb; do
+              jupyter nbconvert --to script "$nb" --output-dir=converted
+            done
+            pytest converted --cov=converted --cov-append --cov-report=xml:coverage-results/coverage.xml --cov-report=html:coverage-results/html
+          fi
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-results

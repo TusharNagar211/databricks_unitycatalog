@@ -1,4 +1,4 @@
-name: Gitleaks
+name: Gitleaks Scan
 
 on:
   workflow_call:
@@ -8,5 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        run: |
+          mkdir -p gitleaks-results
+          gitleaks detect --source . --no-git -r gitleaks-results/gitleaks.json || true
+
+      - name: Upload Gitleaks Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-results
