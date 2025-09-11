@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/templates/unittest.yml@main
 
   coverage:
-    uses: ./.github/templates/coverage.yml@main
+    uses: ./.github/templates/code-coverage.yml@main
 
   gitleaks:
     uses: ./.github/templates/gitleaks.yml@main
