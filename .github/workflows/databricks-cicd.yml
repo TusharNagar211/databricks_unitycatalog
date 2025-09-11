@@ -37,20 +37,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
-
-      - name: Configure Databricks CLI
+      - name: Install Databricks CLI (new)
         run: |
-          databricks configure --token <<EOF
-          ${{ secrets.DATABRICKS_HOST }}
-          ${{ secrets.DATABRICKS_TOKEN }}
-          EOF
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+
+      - name: Check Databricks CLI
+        run: databricks version
 
       - name: Deploy Notebooks to Environment
         run: |
