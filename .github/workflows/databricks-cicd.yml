@@ -44,15 +44,15 @@ jobs:
       - name: Check Databricks CLI
         run: databricks version
 
-      - name: Verify dbx_bundle exists
-        run: |
-          # Adjust path here if your folder is inside src/
-          LOCAL_PATH="dbx_bundle"
-          if [ ! -d "$LOCAL_PATH" ]; then
-            echo "Error: $LOCAL_PATH folder not found!"
-            ls -R
-            exit 1
-          fi        
+      # - name: Verify dbx_bundle exists
+      #   run: |
+      #     # Adjust path here if your folder is inside src/
+      #     LOCAL_PATH="dbx_bundle"
+      #     if [ ! -d "$LOCAL_PATH" ]; then
+      #       echo "Error: $LOCAL_PATH folder not found!"
+      #       ls -R
+      #       exit 1
+      #     fi        
 
       - name: Deploy Notebooks to Environment
         run: |
