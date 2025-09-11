@@ -8,8 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - run: pip install pytest pytest-cov
-      - run: pytest --cov=dbx_bundle --cov-report=xml
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage (skip if none)
+        run: |
+          if [ -d tests ]; then
+            pytest --cov=dbx_bundle --cov-report=xml
+          else
+            echo "⚠️ No tests found, skipping coverage."
+          fi

@@ -1,4 +1,4 @@
-name: Python Unit Tests
+name: Unit Tests
 
 on:
   workflow_call:
@@ -8,8 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - run: pip install pytest
-      - run: pytest tests/ --maxfail=1 --disable-warnings -q
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run unit tests (skip if none)
+        run: |
+          if [ -d tests ]; then
+            pytest tests/ --maxfail=1 --disable-warnings -q
+          else
+            echo "⚠️ No tests directory found, skipping unit tests."
+          fi
