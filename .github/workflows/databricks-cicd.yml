@@ -16,10 +16,10 @@ jobs:
   unittest:
     uses: ./.github/workflows/unittest.yml
   coverage:
-    uses: ./.github/workflows/coverage.yml
+    uses: ./.github/workflows/code-coverage.yml
   gitleaks:
     uses: ./.github/workflows/gitleaks.yml
-    
+
 
   deploy:
     runs-on: ubuntu-latest
